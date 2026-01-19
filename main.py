@@ -133,3 +133,31 @@ for i in range(athelete_avg_normalized.shape[0]):
     print(f"Athlete {i} Normalized Average: {round(athelete_avg_normalized[i], 4)}")
 
 print("=" * 40)
+
+print("\n")
+
+# WEIGHTED AVERAGE
+weights = np.array([0.3, 0.15, 0.15, 0.3, 0.1])  # Power and Durability 
+
+athlete_normalized_weighted_avg = np.average(athlete_data_normalized, weights=weights, axis=1)
+
+athlete_weighted_avg_list = []
+
+print("=" * 40)
+print("WEIGHTED AVERAGE BY ATTRIBUTE PER ATHLETE (NORMALIZED VALUES): ")
+for i in range(athlete_normalized_weighted_avg.shape[0]):
+    print(f"Athlete {i}: {round(athlete_normalized_weighted_avg[i], 4)}")
+    athlete_weighted_avg_list.append(Athlete(i, athlete_normalized_weighted_avg[i]))
+print("=" * 40)
+
+print("\n")
+
+# Rank athletes by weighted averages
+print("=" * 40)
+athlete_weighted_avg_list_sorted = sorted(athlete_weighted_avg_list, key=lambda x: x.average_score, reverse=True)
+
+for index in range(len(athlete_weighted_avg_list_sorted)):
+    athlete = athlete_weighted_avg_list_sorted[index]
+    print(f"Athlete at rank {index}: Athlete {athlete.athlete_number} with weighted score {round(athlete.average_score, 4)}")
+
+print("=" * 40)
