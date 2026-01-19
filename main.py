@@ -69,8 +69,9 @@ print("=" * 40)
 print("\n")
 
 # Rank athletes by their average score
-Athlete = namedtuple("Athlete", ["athlete_number", "average_score"])
+Athlete = namedtuple("Athlete", ["athlete_number", "average_score", "rank"], defaults=[None])
 athlete_list = []
+athlete_ranked_list = []
 
 for i in range(athlete_avg.shape[0]):
     athlete_list.append(Athlete(i, athlete_avg[i]))
@@ -80,7 +81,13 @@ athlete_list_sorted = sorted(athlete_list, key=lambda x: x.average_score, revers
 print("=" * 40)
 for index in range(len(athlete_list_sorted)):
     athlete = athlete_list_sorted[index]
-    print(f"Athlete at rank {index}: Athlete {athlete.athlete_number} with score {athlete.average_score}")
+    athlete = Athlete(
+        athlete_number=athlete.athlete_number, 
+        average_score=athlete.average_score, 
+        rank=index + 1
+    )
+    athlete_ranked_list.append(athlete)
+    print(f"Athlete at rank {athlete.rank}: Athlete {athlete.athlete_number} with score {athlete.average_score}")
 print("=" * 40)
 
 print("\n")
@@ -142,6 +149,7 @@ weights = np.array([0.3, 0.15, 0.15, 0.3, 0.1])  # Power and Durability
 athlete_normalized_weighted_avg = np.average(athlete_data_normalized, weights=weights, axis=1)
 
 athlete_weighted_avg_list = []
+athlete_weighted_ranked_list = []
 
 print("=" * 40)
 print("WEIGHTED AVERAGE BY ATTRIBUTE PER ATHLETE (NORMALIZED VALUES): ")
@@ -154,10 +162,41 @@ print("\n")
 
 # Rank athletes by weighted averages
 print("=" * 40)
+print("ATHLETE RANKING BY WEIGHTED AVERAGE: ")
 athlete_weighted_avg_list_sorted = sorted(athlete_weighted_avg_list, key=lambda x: x.average_score, reverse=True)
 
 for index in range(len(athlete_weighted_avg_list_sorted)):
     athlete = athlete_weighted_avg_list_sorted[index]
-    print(f"Athlete at rank {index}: Athlete {athlete.athlete_number} with weighted score {round(athlete.average_score, 4)}")
+    athlete = Athlete(
+        athlete_number=athlete.athlete_number, 
+        average_score=athlete.average_score, 
+        rank=index + 1
+    )
+    athlete_weighted_ranked_list.append(athlete)
+    print(f"Athlete at rank {athlete.rank}: Athlete {athlete.athlete_number} with weighted score {round(athlete.average_score, 4)}")
+
+print("=" * 40)
+
+print("\n")
+
+print("=" * 40)
+
+# Compare raw rankings and weighted rankings.
+print("COMPARISON OF RAW RANKINGS AND WEIGHTED RANKINGS: ")
+AthleteRanks = namedtuple("AthleteRanks", ["athlete_number", "raw_rank", "weighted_rank", "rank_change"])
+
+for index in range(len(athlete_ranked_list)):
+    athete_ranked = athlete_ranked_list[index]
+
+    for jndex in range(len(athlete_weighted_ranked_list)):
+        athlete_weighted_ranked = athlete_weighted_ranked_list[jndex]
+        if athete_ranked.athlete_number == athlete_weighted_ranked.athlete_number:
+            athlete_comparison = AthleteRanks(
+                athlete_number=athete_ranked.athlete_number,
+                raw_rank=athete_ranked.rank,
+                weighted_rank=athlete_weighted_ranked.rank,
+                rank_change=athete_ranked.rank - athlete_weighted_ranked.rank
+            )
+            print(f"Athlete {athlete_comparison.athlete_number}: Raw Rank = {athlete_comparison.raw_rank}, Weighted Rank = {athlete_comparison.weighted_rank}, Change = {"Increase by" if athlete_comparison.rank_change > 0 else "Decreased by" if athlete_comparison.rank_change < 0 else "No Change"} ({athlete_comparison.rank_change})")
 
 print("=" * 40)
