@@ -113,3 +113,23 @@ attribue_std = np.std(athlete_data, axis=0)
 for i in range(len(attributes)):
     print(f"{attributes[i]}: {round(attribue_std[i], 2)}")
 print("=" * 40)
+
+print("\n")
+
+# NORMALIZATION
+athlete_data_normalized = (athlete_data - athlete_data.min()) / (athlete_data.max() - athlete_data.min())
+
+print("=" * 40)
+print("Normalized attributes: ")
+print(athlete_data_normalized)
+
+print("=" * 40)
+print("\n")
+print("=" * 40)
+
+athelete_avg_normalized = np.average(athlete_data_normalized, axis=1)
+print("AVERAGE BY ATHLETE (NORMALIZED VALUES)")
+for i in range(athelete_avg_normalized.shape[0]):
+    print(f"Athlete {i} Normalized Average: {round(athelete_avg_normalized[i], 4)}")
+
+print("=" * 40)
