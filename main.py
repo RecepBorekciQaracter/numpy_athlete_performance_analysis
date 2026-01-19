@@ -9,7 +9,11 @@ attributes = ["Strength","Speed","Stamina","Durability","Agility"]
 athlete_data = np.genfromtxt("athlete_data.txt", delimiter=",")
 athlete_data = athlete_data.astype("int32")
 
+print("=" * 40)
+print("ATHLETE DATA: ")
+print(attributes)
 print(athlete_data)
+print("=" * 40)
 
 print("\n")
 
@@ -36,7 +40,6 @@ print("\n")
 
 # Max score by athlete
 athlete_best = np.max(athlete_data, axis=1)
-print(athlete_best)
 print("=" * 40)
 print("MAX SCORE BY ATHLETE: ")
 for i in range(athlete_best.shape[0]):
@@ -47,7 +50,6 @@ print("\n")
 
 # Min score by athlete
 athlete_worst = np.min(athlete_data, axis=1)
-print(athlete_worst)
 print("=" * 40)
 print("MIN SCORE BY ATHLETE: ")
 for i in range(athlete_worst.shape[0]):
@@ -59,11 +61,10 @@ print("\n")
 # Consistency by athlete
 athelete_std = np.std(athlete_data, axis=1)
 
-print(athelete_std)
 print("=" * 40)
 print("STANDARD DEVIATION OF PLAYERS: ")
 for i in range(athelete_std.shape[0]):
-    print(f"Athlete {i} Standard Deviation: {athelete_std[i]}")
+    print(f"Athlete {i} Standard Deviation: {round(athelete_std[i], 4)}")
 print("=" * 40)
 
 print("\n")
