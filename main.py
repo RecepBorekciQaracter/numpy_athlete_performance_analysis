@@ -82,3 +82,34 @@ for index in range(len(athlete_list_sorted)):
     athlete = athlete_list_sorted[index]
     print(f"Athlete at rank {index}: Athlete {athlete.athlete_number} with score {athlete.average_score}")
 print("=" * 40)
+
+print("\n")
+
+# Basic Statistics by attribute
+# Max by attribute
+print("=" * 40)
+print("MAX BY ATTRIBUTE: ")
+attribue_max = np.max(athlete_data, axis=0)
+for i in range(len(attributes)):
+    print(f"{attributes[i]}: {attribue_max[i]}")
+print("=" * 40)
+
+print("\n")
+
+# Min by attribute
+print("=" * 40)
+print("MIN BY ATTRIBUTE: ")
+attribue_min = np.min(athlete_data, axis=0)
+for i in range(len(attributes)):
+    print(f"{attributes[i]}: {attribue_min[i]}")
+print("=" * 40)
+
+print("\n")
+
+# Standart Deviation by attribute
+print("=" * 40)
+print("STANDART DEVIATION BY ATTRIBUTE: ")
+attribue_std = np.std(athlete_data, axis=0)
+for i in range(len(attributes)):
+    print(f"{attributes[i]}: {round(attribue_std[i], 2)}")
+print("=" * 40)
