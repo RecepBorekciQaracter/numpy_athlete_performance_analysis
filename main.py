@@ -68,10 +68,10 @@ def compute_weighted_averages(athlete_data_normalized, weights):
     return athlete_normalized_weighted_avg
 
 # F. Athlete Rankings
-# By raw averages
+# Rank athletes by their average score
 def rank_athletes_by_average(averages):
     athlete_list = []
-    athlete_ranked_list = []
+    athlete_ranked_dict = dict()
 
     # Fill in the athlete list by creating Athlete objects.
     for i in range(averages.shape[0]):
@@ -80,7 +80,8 @@ def rank_athletes_by_average(averages):
     # Sort athletes from highest to lowest by average score
     athlete_list_sorted = sorted(athlete_list, key=lambda x: x.average_score, reverse=True)
 
-    # Add ranks to Athlete objects and fill the list `athlete_ranked_list`.
+    # Add ranks to Athlete objects 
+    # And collect these new athlete objects by filling the dict `athlete_ranked_dict` using (athlete_number, athlete) pairs.
     for index in range(len(athlete_list_sorted)):
         athlete = athlete_list_sorted[index]
         athlete = Athlete(
@@ -88,47 +89,44 @@ def rank_athletes_by_average(averages):
             average_score=athlete.average_score, 
             rank=index + 1
         )
-        athlete_ranked_list.append(athlete)
+        athlete_ranked_dict[athlete.athlete_number] = athlete
     
-    return athlete_ranked_list
-
-# By normalized weighted averages
-def rank_athletes_by_weighted_average(weighted_averages):
-    athlete_weighted_avg_list = []
-    athlete_weighted_ranked_list = []
-
-    # Fill the weighted average list using Athlete objects.
-    for i in range(weighted_averages.shape[0]):
-        athlete_weighted_avg_list.append(Athlete(i, weighted_averages[i]))
-
-    # Sort athletes by their weighted average of their normalized values
-    athlete_weighted_avg_list_sorted = sorted(athlete_weighted_avg_list, key=lambda x: x.average_score, reverse=True)
-
-    # Append ranks to the Athlete objects. And collect these new athlete objects in the list `athlete_weighted_ranked_list`
-    for index in range(len(athlete_weighted_avg_list_sorted)):
-        athlete = athlete_weighted_avg_list_sorted[index]
-        athlete = Athlete(
-            athlete_number=athlete.athlete_number, 
-            average_score=athlete.average_score, 
-            rank=index + 1
-        )
-        athlete_weighted_ranked_list.append(athlete)
-    return athlete_weighted_ranked_list
+    return athlete_ranked_dict
 
 # G. Compare raw and weighted rankings
-def compare_rankings(raw_ranked, weighted_ranked): 
+def compare_rankings(raw_ranked_dict, weighted_ranked_dict): 
+    def validate_same_athletes(dict_a, dict_b):
+        keys_a = set(dict_a.keys())
+        keys_b = set(dict_b.keys())
+
+        if keys_a != keys_b:
+            missing_in_a = keys_b - keys_a
+            missing_in_b = keys_a - keys_b
+
+            raise ValueError(
+                f"Athlete mismatch detected.\n"
+                f"Missing in first dict: {missing_in_a}\n"
+                f"Missing in second dict: {missing_in_b}"
+            )
+
+        return sorted(keys_a)
+
     athlete_comparison_list = []
 
-    for _, athete_ranked in enumerate(raw_ranked):
-        for _, athlete_weighted_ranked in enumerate(weighted_ranked):
-            if athete_ranked.athlete_number == athlete_weighted_ranked.athlete_number:
-                athlete_comparison = AthleteRanks(
-                    athlete_number=athete_ranked.athlete_number,
-                    raw_rank=athete_ranked.rank,
-                    weighted_rank=athlete_weighted_ranked.rank,
-                    rank_change=athete_ranked.rank - athlete_weighted_ranked.rank
-                )    
-                athlete_comparison_list.append(athlete_comparison)
+    common_athletes = validate_same_athletes(raw_ranked_dict, weighted_ranked_dict)
+
+    for athlete_number in common_athletes:
+        athlete_ranked = raw_ranked_dict[athlete_number]
+        athlete_weighted_ranked = weighted_ranked_dict[athlete_number]
+
+        athlete_comparison = AthleteRanks(
+            athlete_number=athlete_ranked.athlete_number,
+            raw_rank=athlete_ranked.rank,
+            weighted_rank=athlete_weighted_ranked.rank,
+            rank_change=athlete_ranked.rank - athlete_weighted_ranked.rank
+        )    
+
+        athlete_comparison_list.append(athlete_comparison)
 
     return athlete_comparison_list
 
@@ -204,7 +202,7 @@ def print_athlete_standard_deviation(athlete_std):
 # D. Normalization
 # Print normalized data
 def print_normalized_data(athlete_data_normalized):
-    print("Normalized attributes: ")
+    print("NORMALIZED ATTRIBUTES: ")
     print(athlete_data_normalized)
 
 # Normalized athlete averages
@@ -220,23 +218,18 @@ def print_weighted_averages_per_athlete(athlete_normalized_weighted_avg):
         print(f"Athlete {i}: {round(athlete_normalized_weighted_avg[i], 4)}")
 
 # F. Athlete rankings
-# Rank athletes by their raw average score
-def print_athlete_ranking_by_average(athlete_ranked_list):
-    for athlete_ranked in athlete_ranked_list:
-        print(f"Athlete at rank {athlete_ranked.rank}: Athlete {athlete_ranked.athlete_number} with score {athlete_ranked.average_score}")
-
-# Rank athletes by their normalized weighted averages
-def print_athlete_ranking_by_weighted_average(athlete_weighted_ranked_list):
-    print("ATHLETE RANKING BY WEIGHTED AVERAGE: ")
-
-    for _, athlete_ranked in enumerate(athlete_weighted_ranked_list):
-        print(f"Athlete at rank {athlete_ranked.rank}: Athlete {athlete_ranked.athlete_number} with weighted score {round(athlete_ranked.average_score, 4)}")
+# Rank athletes by their average score
+def print_athlete_ranking_by_average(title, athlete_ranked_dict):
+    print(title)
+    for athlete_number in athlete_ranked_dict:
+        athlete_ranked = athlete_ranked_dict[athlete_number]
+        print(f"Athlete at rank {athlete_ranked.rank}: Athlete {athlete_ranked.athlete_number} with score {round(athlete_ranked.average_score, 4)}")
 
 # G. Compare raw rankings and weighted rankings.
 def print_comparison_of_rankings(athlete_comparison_list):
     print("COMPARISON OF RAW RANKINGS AND WEIGHTED RANKINGS: ")
     for athlete_comparison in athlete_comparison_list:
-        print(f"Athlete {athlete_comparison.athlete_number}:" 
+        print(f"Athlete {athlete_comparison.athlete_number}: " 
                 f"Raw Rank = {athlete_comparison.raw_rank}, "
                 f"Weighted Rank = {athlete_comparison.weighted_rank}, "
                 f"Change = {"Increase by" if athlete_comparison.rank_change > 0 else "Decreased by" if athlete_comparison.rank_change < 0 else "No Change"} ({athlete_comparison.rank_change})"
@@ -247,6 +240,9 @@ def print_comparison_of_rankings(athlete_comparison_list):
 # ========================
 
 def main():
+    RAW_AVERAGE_TITLE = "ATHLETE RANKING BY RAW AVERAGE: "
+    WEIGHTED_AVERAGE_TITLE = "ATHLETE RANKING BY WEIGHTED AVERAGE: "
+
     athlete_data = load_athlete_data("athlete_data.txt")
     athlete_avg = compute_athlete_averages(athlete_data)
     athlete_best = compute_athlete_best_scores(athlete_data)
@@ -263,10 +259,10 @@ def main():
 
     athlete_normalized_weighted_avg = compute_weighted_averages(athlete_data_normalized, weights)
 
-    athlete_ranked_list = rank_athletes_by_average(athlete_avg)
-    athlete_weighted_ranked_list = rank_athletes_by_weighted_average(athlete_normalized_weighted_avg)
+    athlete_ranked_dict = rank_athletes_by_average(athlete_avg) # Rank by raw averages
+    athlete_weighted_ranked_dict = rank_athletes_by_average(athlete_normalized_weighted_avg) # Rank by normalized weighted averages
 
-    athlete_comparison_list = compare_rankings(athlete_ranked_list, athlete_weighted_ranked_list)
+    athlete_comparison_list = compare_rankings(athlete_ranked_dict, athlete_weighted_ranked_dict)
 
     # A. Print Raw Data
     print_separator()
@@ -357,14 +353,14 @@ def main():
     # F. Print rankings of athletes
     # Rank athletes by their average score
     print_separator()
-    print_athlete_ranking_by_average(athlete_ranked_list)
+    print_athlete_ranking_by_average(RAW_AVERAGE_TITLE, athlete_ranked_dict)
     print_separator()
 
     print_newline()
 
     # Rank athletes by weighted averages
     print_separator()
-    print_athlete_ranking_by_weighted_average(athlete_weighted_ranked_list)
+    print_athlete_ranking_by_average(WEIGHTED_AVERAGE_TITLE, athlete_weighted_ranked_dict)
     print_separator()
 
     print_newline()
